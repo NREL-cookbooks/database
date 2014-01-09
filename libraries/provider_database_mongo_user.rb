@@ -36,7 +36,7 @@ class Chef
           unless exists?
             begin
               db
-              hash = db.db(@new_resource.database_name).add_user(@new_resource.username, @new_resource.password, @new_resource.read_only || false, @new_resource.options || {})
+              hash = db.db(@new_resource.database_name).add_user(@new_resource.username, @new_resource.password, !@new_resource.read_only.zero?, @new_resource.options || {})
               Chef::Log.info("mongo_database_user[#{@new_resource.username}]: granted access to '#{@new_resource.database_name}'");
               @new_resource.updated_by_last_action(true)
             ensure
