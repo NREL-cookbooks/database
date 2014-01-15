@@ -33,7 +33,7 @@ class Chef
         end
 
         def action_create
-          unless exists?
+          if(master? && !exists?)
             begin
               db
               hash = db.db(@new_resource.database_name).add_user(@new_resource.username, @new_resource.password, !@new_resource.read_only.zero?, @new_resource.options || {})
@@ -46,7 +46,7 @@ class Chef
         end
 
         def action_drop
-          if exists?
+          if(master? && exists?)
             begin
               db.query("DROP USER `#{@new_resource.username}`@`#{@new_resource.host}`")
               @new_resource.updated_by_last_action(true)
@@ -82,6 +82,9 @@ class Chef
           collection.find({'user' => @new_resource.name}).count() != 0
         end
 
+        def master?
+          db.check_is_master(["localhost", 27017])['ismaster'] || false
+        end
       end
     end
   end

@@ -78,6 +78,17 @@ class Chef
         def db
           @db ||= begin
             connection = ::Mongo::MongoClient.new(@new_resource.connection[:host], @new_resource.connection[:port] || 27017, :op_timeout => 5, :slave_ok => true)
+
+            if(@new_resource.connection[:username])
+              begin
+                test_command = connection['admin'].eval("db.system.users.find({user:'#{@new_resource.connection[:username]}'}).count()")
+              rescue
+                Chef::Log.info "Authenticating #{@new_resource.connection[:username]} user"
+                success = connection['admin'].authenticate(@new_resource.connection[:username], @new_resource.connection[:password])
+                Chef::Log.error "could not authenitcate as admin on database" if not success
+              end
+            end
+
             connection.database_names # check connection
             connection
           end
