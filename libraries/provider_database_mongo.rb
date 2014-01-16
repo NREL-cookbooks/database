@@ -83,9 +83,15 @@ class Chef
               begin
                 test_command = connection['admin'].eval("db.system.users.find({user:'#{@new_resource.connection[:username]}'}).count()")
               rescue
-                Chef::Log.info "Authenticating #{@new_resource.connection[:username]} user"
-                success = connection['admin'].authenticate(@new_resource.connection[:username], @new_resource.connection[:password])
-                Chef::Log.error "could not authenitcate as admin on database" if not success
+                begin
+                  Chef::Log.info "Authenticating #{@new_resource.connection[:username]} user"
+                  success = connection['admin'].authenticate(@new_resource.connection[:username], @new_resource.connection[:password])
+                  Chef::Log.error "could not authenitcate as admin on database" if not success
+                rescue
+                  # Ignore authentication failures, since we'll assume it's
+                  # because we're still setting up users for the first time.
+                  Chef::Log.error "could not authenitcate as admin on database"
+                end
               end
             end
 
