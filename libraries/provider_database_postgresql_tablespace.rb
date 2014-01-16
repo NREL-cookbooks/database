@@ -16,12 +16,9 @@ class Chef
 
         def action_create
           unless exists?
-            directory(@new_resource.directory) do
-              recursive true
-              owner "postgres"
-              group "postgres"
-              mode 0700
-            end
+            ::FileUtils.mkdir_p(@new_resource.directory)
+            ::FileUtils.chown("postgres", "postgres", @new_resource.directory)
+            ::FileUtils.chmod(0700, @new_resource.directory)
 
             begin
               create_sql = "CREATE TABLESPACE \"#{@new_resource.tablespace_name}\""
