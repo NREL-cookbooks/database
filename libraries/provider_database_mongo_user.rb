@@ -79,7 +79,7 @@ class Chef
         def exists?
           database = db.db('admin')
           collection = database.collection(::Mongo::DB::SYSTEM_USER_COLLECTION)
-          collection.find({'user' => @new_resource.name}).count() != 0
+          collection.find({'user' => @new_resource.name, 'db' => @new_resource.database_name}).count() != 0
         end
 
         def master?
